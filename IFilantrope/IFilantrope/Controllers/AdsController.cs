@@ -43,7 +43,7 @@ namespace IFilantrope.Controllers
             return View();
         }
 
-        [HttpPost]
+        [HttpPost, ValidateInput(false)]
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "Id,Title,Description,AuthorId")] Ad ad)
         {
@@ -71,7 +71,7 @@ namespace IFilantrope.Controllers
             return View(ad);
         }
 
-        [HttpPost]
+        [HttpPost, ValidateInput(false)]
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "Id,Title,Description,AuthorId")] Ad ad)
         {
