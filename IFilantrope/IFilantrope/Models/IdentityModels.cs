@@ -33,7 +33,7 @@ namespace IFilantrope.Models
         {
         }
 
-        public DbSet<Ad> Pages { get; set; }
+        public DbSet<Ad> Ads { get; set; }
 
         public static ApplicationDbContext Create()
         {

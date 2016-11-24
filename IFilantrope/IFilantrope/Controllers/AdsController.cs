@@ -15,28 +15,12 @@ namespace IFilantrope.Controllers
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
-        // GET: Ads
         public ActionResult Index()
         {
-            var pages = db.Pages.Include(a => a.Author);
+            ViewBag.UserId = HttpContext.User.Identity.GetUserId();
+            var pages = db.Ads.Include(a => a.Author);
             return View(pages.ToList());
         }
-
-        // GET: Ads/Details/5
-        public ActionResult Details(long? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Ad ad = db.Pages.Find(id);
-            if (ad == null)
-            {
-                return HttpNotFound();
-            }
-            return View(ad);
-        }
-
 
         public ActionResult Create()
         {
@@ -50,10 +34,11 @@ namespace IFilantrope.Controllers
             if (ModelState.IsValid)
             {
                 ad.AuthorId = User.Identity.GetUserId();
-                db.Pages.Add(ad);
+                db.Ads.Add(ad);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
+
             return View(ad);
         }
 
@@ -63,12 +48,20 @@ namespace IFilantrope.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Ad ad = db.Pages.Find(id);
+
+            Ad ad = db.Ads.Find(id);
             if (ad == null)
             {
                 return HttpNotFound();
             }
-            return View(ad);
+            else if (HttpContext.User.IsInRole("Admin") || HttpContext.User.Identity.GetUserId() == ad.AuthorId)
+            {
+                return View(ad);
+            }
+            else
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
         }
 
         [HttpPost, ValidateInput(false)]
@@ -82,6 +75,7 @@ namespace IFilantrope.Controllers
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
+
             return View(ad);
         }
 
@@ -91,21 +85,32 @@ namespace IFilantrope.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Ad ad = db.Pages.Find(id);
+            Ad ad = db.Ads.Find(id);
             if (ad == null)
             {
                 return HttpNotFound();
             }
-            return View(ad);
+            else if (HttpContext.User.IsInRole("Admin") || HttpContext.User.Identity.GetUserId() == ad.AuthorId)
+            {
+                return View(ad);
+            }
+            else
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
         }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(long id)
         {
-            Ad ad = db.Pages.Find(id);
-            db.Pages.Remove(ad);
-            db.SaveChanges();
+            Ad ad = db.Ads.Find(id);
+            if (HttpContext.User.IsInRole("Admin") || HttpContext.User.Identity.GetUserId() == ad.AuthorId)
+            {
+                db.Ads.Remove(ad);
+                db.SaveChanges();
+            }
+            
             return RedirectToAction("Index");
         }
 
